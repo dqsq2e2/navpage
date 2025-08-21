@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密钥管理 - NavPage Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景动画 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 153, 204, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { 
+                transform: translateX(0) translateY(0) scale(1); 
+                opacity: 0.3;
+            }
+            33% { 
+                transform: translateX(-20px) translateY(-20px) scale(1.05); 
+                opacity: 0.5;
+            }
+            66% { 
+                transform: translateX(20px) translateY(20px) scale(0.95); 
+                opacity: 0.4;
+            }
+        }
+
+        /* 粒子动画 */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: float 15s infinite linear;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 12s;
+        }
+
+        .particle:nth-child(2) {
+            left: 30%;
+            animation-delay: 2s;
+            animation-duration: 16s;
+        }
+
+        .particle:nth-child(3) {
+            left: 70%;
+            animation-delay: 4s;
+            animation-duration: 14s;
+        }
+
+        .particle:nth-child(4) {
+            left: 90%;
+            animation-delay: 6s;
+            animation-duration: 18s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        0 0 20px rgba(0, 212, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            margin-bottom: 24px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .header-subtitle {
+            color: #b0b0b0;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4),
+                        0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(26, 26, 46, 0.8);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-danger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-danger:hover::before {
+            left: 100%;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4),
+                        0 0 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .content-card {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        0 0 20px rgba(0, 212, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(16, 16, 30, 0.5);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #00d4ff, #a0aec0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-subtitle {
+            color: #b0b0b0;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .keys-list {
+            padding: 0;
+        }
+
+        .key-item {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .key-item:hover {
+            background: rgba(0, 212, 255, 0.08);
+            transform: translateX(2px);
+        }
+
+        .key-item:last-child {
+            border-bottom: none;
+        }
+
+        .key-info {
+            flex: 1;
+        }
+
+        .key-header {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .key-id {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .key-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            background: rgba(0, 212, 255, 0.15);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            width: fit-content;
+        }
+
+        .key-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .key-created {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .key-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-admin {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ff6b6b;
+        }
+
+        .badge-current {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .badge-user {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        .key-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            padding: 60px 24px;
+            text-align: center;
+            color: #718096;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .empty-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ff6b6b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.15);
+            color: #00ff88;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: 24px;
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .modal-text {
+            color: #b0b0b0;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .key-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .key-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1 class="header-title">密钥管理</h1>
+                    <p class="header-subtitle">管理系统中的所有用户密钥</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/create-key" class="btn btn-primary">
+                        <span>➕</span>
+                        创建密钥
+                    </a>
+                    <a href="/" class="btn btn-secondary">
+                        <span>🏠</span>
+                        返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="card-title">系统密钥列表</h2>
+                <p class="card-subtitle">显示所有已注册的用户密钥及其状态</p>
+            </div>
+            
+            <div id="keysList" class="keys-list">
+                <div class="empty-state">
+                    <div class="loading-spinner"></div>
+                    <div class="empty-title">加载中...</div>
+                    <div class="empty-text">正在获取密钥列表</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">确认删除密钥</h3>
+            <p class="modal-text">
+                您确定要删除这个密钥吗？此操作将：
+                <br>• 删除该用户的所有配置数据
+                <br>• 使该密钥永久失效
+                <br>• 此操作不可撤销
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelDelete">取消</button>
+                <button class="btn btn-danger" id="confirmDelete">删除密钥</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner" style="width: 24px; height: 24px; margin-bottom: 12px;"></div>
+            <div>处理中...</div>
+        </div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const keysList = document.getElementById('keysList');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelDelete = document.getElementById('cancelDelete');
+        const confirmDelete = document.getElementById('confirmDelete');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        let currentDeleteKeyId = null;
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 显示成功信息
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 显示加载遮罩
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
+
+        // 隐藏加载遮罩
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 渲染密钥列表
+        function renderKeysList(keys) {
+            if (keys.length === 0) {
+                keysList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔑</div>
+                        <div class="empty-title">暂无密钥</div>
+                        <div class="empty-text">系统中还没有创建任何密钥</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const keysHtml = keys.map(key => {
+                const badges = [];
+                if (key.isAdmin) badges.push('<span class="key-badge badge-admin">管理员</span>');
+                if (key.isCurrent) badges.push('<span class="key-badge badge-current">当前用户</span>');
+                if (!key.isAdmin && !key.isCurrent) badges.push('<span class="key-badge badge-user">用户</span>');
+
+                return `
+                    <div class="key-item">
+                        <div class="key-info">
+                            <div class="key-header">
+                                <div class="key-id">${key.id}</div>
+                                ${key.keyName ? `<div class="key-name">${key.keyName}</div>` : ''}
+                            </div>
+                            <div class="key-meta">
+                                <span class="key-created">创建于 ${formatDate(key.createdAt)}</span>
+                                ${badges.join('')}
+                            </div>
+                        </div>
+                        <div class="key-actions">
+                            ${!key.isCurrent ? `
+                                <button class="btn btn-danger btn-small" onclick="showDeleteModal('${key.id}')">
+                                    删除
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            keysList.innerHTML = keysHtml;
+        }
+
+        // 获取密钥列表
+        async function loadKeys() {
+            try {
+                const response = await fetch('/api/admin/keys');
+                const data = await response.json();
+
+                if (response.ok) {
+                    renderKeysList(data.keys);
+                } else {
+                    throw new Error(data.error || '获取密钥列表失败');
+                }
+            } catch (error) {
+                console.error('获取密钥列表错误:', error);
+                keysList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <div class="empty-title">加载失败</div>
+                        <div class="empty-text">${error.message}</div>
+                    </div>
+                `;
+                showError(error.message);
+            }
+        }
+
+        // 显示删除确认模态框
+        window.showDeleteModal = function(keyId) {
+            currentDeleteKeyId = keyId;
+            deleteModal.classList.add('active');
+        }
+
+        // 隐藏删除确认模态框
+        function hideDeleteModal() {
+            deleteModal.classList.remove('active');
+            currentDeleteKeyId = null;
+        }
+
+        // 删除密钥
+        async function deleteKey(keyId) {
+            showLoading();
+            
+            try {
+                const response = await fetch(`/api/admin/keys/${keyId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('密钥删除成功');
+                    loadKeys(); // 重新加载列表
+                } else {
+                    throw new Error(data.error || '删除密钥失败');
+                }
+            } catch (error) {
+                console.error('删除密钥错误:', error);
+                showError(error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 事件监听
+        cancelDelete.addEventListener('click', hideDeleteModal);
+        
+        confirmDelete.addEventListener('click', () => {
+            if (currentDeleteKeyId) {
+                hideDeleteModal();
+                deleteKey(currentDeleteKeyId);
+            }
+        });
+
+        // 点击模态框外部关闭
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                hideDeleteModal();
+            }
+        });
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && deleteModal.classList.contains('active')) {
+                hideDeleteModal();
+            }
+        });
+
+        // 页面加载时获取密钥列表
+        loadKeys();
+    </script>
+
+    <!-- 背景粒子 -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+</body>
+</html> 

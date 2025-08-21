@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建密钥 - NavPage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景动画 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 153, 204, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { 
+                transform: translateX(0) translateY(0) scale(1); 
+                opacity: 0.3;
+            }
+            33% { 
+                transform: translateX(-20px) translateY(-20px) scale(1.05); 
+                opacity: 0.5;
+            }
+            66% { 
+                transform: translateX(20px) translateY(20px) scale(0.95); 
+                opacity: 0.4;
+            }
+        }
+
+        /* 粒子动画 */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: float 15s infinite linear;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 12s;
+        }
+
+        .particle:nth-child(2) {
+            left: 30%;
+            animation-delay: 2s;
+            animation-duration: 16s;
+        }
+
+        .particle:nth-child(3) {
+            left: 70%;
+            animation-delay: 4s;
+            animation-duration: 14s;
+        }
+
+        .particle:nth-child(4) {
+            left: 90%;
+            animation-delay: 6s;
+            animation-duration: 18s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .create-key-container {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 
+                        0 0 20px rgba(0, 212, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 480px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .subtitle {
+            color: #b0b0b0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .info-box {
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-list {
+            color: #b0b0b0;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .info-list li {
+            margin-bottom: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .form-hint {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #a0aec0;
+            line-height: 1.4;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(16, 16, 30, 0.8);
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 禁用浏览器默认的密码可见性切换 */
+        .form-input[type="password"]::-ms-reveal,
+        .form-input[type="password"]::-ms-clear {
+            display: none !important;
+        }
+        
+        .form-input[type="password"]::-webkit-contacts-auto-fill-button,
+        .form-input[type="password"]::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            display: none !important;
+            pointer-events: none;
+            height: 0;
+            width: 0;
+            margin: 0;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2),
+                        0 0 20px rgba(0, 212, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .form-input.error {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .form-input.success {
+            border-color: #4ade80;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #00d4ff;
+            font-size: 14px;
+            padding: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: rgba(160, 174, 192, 0.3);
+            border-radius: 2px;
+            margin: 4px 0;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak .strength-fill {
+            width: 25%;
+            background: #e53e3e;
+        }
+
+        .strength-fair .strength-fill {
+            width: 50%;
+            background: #dd6b20;
+        }
+
+        .strength-good .strength-fill {
+            width: 75%;
+            background: #d69e2e;
+        }
+
+        .strength-strong .strength-fill {
+            width: 100%;
+            background: #38a169;
+        }
+
+        .strength-text {
+            font-size: 11px;
+            color: #a0aec0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: white;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4),
+                        0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(26, 26, 46, 0.8);
+            color: #00d4ff;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+            color: #a0aec0;
+            font-size: 14px;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 212, 255, 0.3);
+            z-index: 1;
+        }
+
+        .divider span {
+            background: rgba(15, 15, 15, 0.95);
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+            color: #a0aec0;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.15);
+            color: #00ff88;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .create-key-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="create-key-container">
+        <div class="header">
+            <h1 class="title">创建密钥</h1>
+            <p class="subtitle">设置您的专属密钥以访问系统</p>
+        </div>
+
+        <div class="info-box">
+            <div class="info-title">重要提示</div>
+            <ul class="info-list">
+                <li>密钥是您的唯一身份标识，请妥善保管</li>
+                <li>密钥长度至少6个字符</li>
+                <li>第一个创建的密钥将自动获得管理员权限</li>
+                <li>每个密钥对应独立的配置和数据</li>
+            </ul>
+        </div>
+        
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+
+        <form id="createKeyForm">
+            <div class="form-group">
+                <label for="keyName" class="form-label">密钥名称（可选）</label>
+                <input 
+                    type="text" 
+                    id="keyName" 
+                    name="keyName" 
+                    class="form-input" 
+                    placeholder="为您的密钥起一个便于识别的名称"
+                    maxlength="50"
+                >
+                <div class="form-hint">密钥名称仅在管理员界面显示，用于区分不同密钥</div>
+            </div>
+
+            <div class="form-group">
+                <label for="key" class="form-label">密钥</label>
+                <div class="password-container">
+                    <input 
+                        type="password" 
+                        id="key" 
+                        name="key" 
+                        class="form-input" 
+                        placeholder="请输入您的密钥（至少6个字符）"
+                        required
+                        minlength="6"
+                    >
+                    <button type="button" class="password-toggle" id="togglePassword">
+                        显示
+                    </button>
+                </div>
+                <div class="password-strength" id="passwordStrength" style="display: none;">
+                    <div class="strength-bar">
+                        <div class="strength-fill"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmKey" class="form-label">确认密钥</label>
+                <div class="password-container">
+                    <input 
+                        type="password" 
+                        id="confirmKey" 
+                        name="confirmKey" 
+                        class="form-input" 
+                        placeholder="请再次输入密钥"
+                        required
+                    >
+                    <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                        显示
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="createBtn">
+                创建密钥
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>已有密钥？</span>
+        </div>
+
+        <a href="/auth" class="btn btn-secondary">
+            返回登录
+        </a>
+    </div>
+
+    <script>
+        // DOM 元素
+        const createKeyForm = document.getElementById('createKeyForm');
+        const keyNameInput = document.getElementById('keyName');
+        const keyInput = document.getElementById('key');
+        const confirmKeyInput = document.getElementById('confirmKey');
+        const createBtn = document.getElementById('createBtn');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('strengthText');
+
+        // 显示/隐藏密码
+        togglePassword.addEventListener('click', () => {
+            const type = keyInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            keyInput.setAttribute('type', type);
+            togglePassword.textContent = type === 'password' ? '显示' : '隐藏';
+        });
+
+        toggleConfirmPassword.addEventListener('click', () => {
+            const type = confirmKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmKeyInput.setAttribute('type', type);
+            toggleConfirmPassword.textContent = type === 'password' ? '显示' : '隐藏';
+        });
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        // 显示成功信息
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        // 隐藏消息
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        // 设置加载状态
+        function setLoading(loading) {
+            if (loading) {
+                createBtn.disabled = true;
+                createBtn.innerHTML = '<span class="loading-spinner"></span>创建中...';
+            } else {
+                createBtn.disabled = false;
+                createBtn.innerHTML = '创建密钥';
+            }
+        }
+
+        // 检查密码强度
+        function checkPasswordStrength(password) {
+            let score = 0;
+            let feedback = [];
+
+            if (password.length >= 8) score += 1;
+            if (password.length >= 12) score += 1;
+            if (/[a-z]/.test(password)) score += 1;
+            if (/[A-Z]/.test(password)) score += 1;
+            if (/[0-9]/.test(password)) score += 1;
+            if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+            let strength = 'weak';
+            let text = '弱';
+
+            if (score >= 2) {
+                strength = 'fair';
+                text = '一般';
+            }
+            if (score >= 4) {
+                strength = 'good';
+                text = '良好';
+            }
+            if (score >= 5) {
+                strength = 'strong';
+                text = '强';
+            }
+
+            return { strength, text };
+        }
+
+        // 密钥输入事件
+        keyInput.addEventListener('input', () => {
+            const password = keyInput.value;
+            
+            if (password.length > 0) {
+                passwordStrength.style.display = 'block';
+                const { strength, text } = checkPasswordStrength(password);
+                
+                passwordStrength.className = `password-strength strength-${strength}`;
+                strengthText.textContent = `密钥强度: ${text}`;
+            } else {
+                passwordStrength.style.display = 'none';
+            }
+
+            // 检查确认密钥
+            validateConfirmKey();
+        });
+
+        // 确认密钥输入事件
+        confirmKeyInput.addEventListener('input', validateConfirmKey);
+
+        // 验证确认密钥
+        function validateConfirmKey() {
+            const key = keyInput.value;
+            const confirmKey = confirmKeyInput.value;
+
+            if (confirmKey.length > 0) {
+                if (key === confirmKey) {
+                    confirmKeyInput.classList.remove('error');
+                    confirmKeyInput.classList.add('success');
+                } else {
+                    confirmKeyInput.classList.remove('success');
+                    confirmKeyInput.classList.add('error');
+                }
+            } else {
+                confirmKeyInput.classList.remove('error', 'success');
+            }
+        }
+
+        // 创建密钥处理
+        createKeyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const key = keyInput.value.trim();
+            const confirmKey = confirmKeyInput.value.trim();
+
+            if (!key) {
+                showError('请输入密钥');
+                return;
+            }
+
+            if (key.length < 6) {
+                showError('密钥长度至少6个字符');
+                return;
+            }
+
+            if (key !== confirmKey) {
+                showError('两次输入的密钥不一致');
+                return;
+            }
+
+            setLoading(true);
+            hideMessages();
+
+            try {
+                const keyName = keyNameInput.value.trim();
+                const response = await fetch('/api/auth/create-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        key,
+                        keyName: keyName || null // 如果没有输入名称则传递null
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const adminText = data.isAdmin ? '（管理员权限）' : '';
+                    showSuccess(`密钥创建成功！${adminText} 正在跳转到登录页面...`);
+                    setTimeout(() => {
+                        window.location.href = '/auth';
+                    }, 2000);
+                } else {
+                    showError(data.error || '创建密钥失败');
+                }
+            } catch (error) {
+                console.error('创建密钥错误:', error);
+                showError('网络错误，请重试');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // 自动聚焦密钥输入框
+        keyInput.focus();
+    </script>
+
+    <!-- 背景粒子 -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+</body>
+</html> 

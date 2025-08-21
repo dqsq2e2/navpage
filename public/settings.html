@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 服务器导航面板</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #0099cc;
+            --accent-color: #ff6b35;
+            --success-color: #00ff88;
+            --warning-color: #ffaa00;
+            --error-color: #ff4444;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #666666;
+            
+            --border-light: rgba(255, 255, 255, 0.1);
+            --border-medium: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 玻璃态效果 */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 头部 */
+        .header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-button {
+            padding: 0.75rem 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        .back-button:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* 设置区域 */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .settings-section {
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 配置操作 */
+        .config-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .config-button {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-button:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .config-button.export {
+            background: linear-gradient(135deg, var(--success-color), #00cc77);
+        }
+
+        .config-button.import {
+            background: linear-gradient(135deg, var(--warning-color), #ff9900);
+        }
+
+        .config-button.reset {
+            background: linear-gradient(135deg, var(--error-color), #cc3333);
+        }
+
+        .config-button.clear-history {
+            background: rgba(255, 68, 68, 0.15);
+            border-color: rgba(255, 68, 68, 0.3);
+            color: var(--error-color);
+        }
+
+        .config-button.clear-history:hover {
+            background: rgba(255, 68, 68, 0.25);
+            border-color: rgba(255, 68, 68, 0.5);
+            color: var(--error-color);
+        }
+
+        .config-button.admin {
+            background: rgba(155, 89, 182, 0.15);
+            border-color: rgba(155, 89, 182, 0.3);
+            color: #9b59b6;
+        }
+
+        .config-button.admin:hover {
+            background: rgba(155, 89, 182, 0.25);
+            border-color: rgba(155, 89, 182, 0.5);
+            color: #9b59b6;
+        }
+
+        /* 搜索引擎列表和分类列表 */
+        .engine-list, .service-list, .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .engine-item, .service-item, .category-item {
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--bg-card);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .engine-info, .service-info, .category-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .engine-icon, .service-icon, .category-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            background: var(--glass-bg);
+        }
+
+        .engine-icon img, .service-icon img {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .item-details h3 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .item-details p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-button {
+            padding: 0.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .action-button:hover {
+            background: var(--primary-color);
+        }
+
+        .action-button.delete:hover {
+            background: var(--error-color);
+        }
+
+        .action-button.sort {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .action-button.sort:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--bg-secondary);
+        }
+
+        .action-button.sort:disabled:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* 颜色选择器 */
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .color-picker-container input[type="color"] {
+            width: 50px;
+            height: 35px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .color-picker-container input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker-container input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        .color-preview {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-light);
+            min-width: 70px;
+        }
+
+        /* 分类颜色指示器 */
+        .category-color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-left: 0.5rem;
+        }
+
+        /* 添加表单 */
+        .add-form {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--bg-card);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn.primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 隐藏的文件输入 */
+        .hidden-input {
+            display: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .config-actions {
+                justify-content: center;
+            }
+        }
+
+        /* 成功/错误消息 */
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .message.error {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <span style="font-size: 2rem;">⚙️</span>
+                    <h1>系统设置</h1>
+                </div>
+                <button onclick="window.location.href = '/'" class="back-button">
+                    <span>←</span>
+                    返回主页
+                </button>
+            </div>
+        </header>
+
+        <!-- 消息提示 -->
+        <div id="message" class="message"></div>
+
+        <!-- 配置操作 -->
+        <div class="config-actions">
+            <button class="config-button export" onclick="exportConfig()">
+                <span>📤</span>
+                导出配置
+            </button>
+            <button class="config-button import" onclick="document.getElementById('import-file').click()">
+                <span>📥</span>
+                导入配置
+            </button>
+            <button class="config-button reset" onclick="resetConfig()">
+                <span>🔄</span>
+                重置配置
+            </button>
+            <button class="config-button clear-history" onclick="clearSearchHistory()">
+                <span>🗑️</span>
+                清除搜索历史
+            </button>
+            <!-- 管理员功能 -->
+            <button id="admin-keys-button" class="config-button admin" onclick="openKeyManagement()" style="display: none;">
+                <span>🔑</span>
+                密钥管理
+            </button>
+            <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importConfig(this)">
+        </div>
+
+        <!-- 设置网格 -->
+        <div class="settings-grid">
+            <!-- 搜索引擎管理 -->
+            <div class="settings-section glass">
+                <h2 class="section-title">
+                    <span>🔍</span>
+                    搜索引擎管理
+                </h2>
+                
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    💡 使用 ↑↓ 按钮调整搜索引擎顺序，第一个搜索引擎将成为默认选项
+                </p>
+                
+                <div id="engine-list" class="engine-list">
+                    <!-- 搜索引擎列表将在这里动态生成 -->
+                </div>
+
+                <!-- 添加搜索引擎表单 -->
+                <div class="add-form">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">添加搜索引擎</h3>
+                    <form id="add-engine-form">
+                        <div class="form-group">
+                            <label>引擎名称</label>
+                            <input type="text" id="engine-name" placeholder="例如：谷歌" required>
+                        </div>
+                        <div class="form-group">
+                            <label>搜索URL</label>
+                            <input type="text" id="engine-url" placeholder="例如：https://www.google.com/search?q={query}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>图标 (Emoji)</label>
+                            <input type="text" id="engine-icon" placeholder="🔍" maxlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label>图标URL (可选)</label>
+                            <input type="url" id="engine-icon-url" placeholder="https://example.com/icon.png">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary">添加引擎</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 分类管理 -->
+            <div class="settings-section glass">
+                <h2 class="section-title">
+                    <span>🏷️</span>
+                    分类管理
+                </h2>
+                
+                <div id="category-list" class="category-list">
+                    <!-- 分类列表将在这里动态生成 -->
+                </div>
+
+                <!-- 添加分类表单 -->
+                <div class="add-form">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">添加分类</h3>
+                    <form id="add-category-form">
+                        <div class="form-group">
+                            <label>分类名称</label>
+                            <input type="text" id="category-name" placeholder="例如：开发工具" required>
+                        </div>
+                        <div class="form-group">
+                            <label>分类图标 (Emoji)</label>
+                            <input type="text" id="category-icon" placeholder="🔧" maxlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label>主题颜色</label>
+                            <div class="color-picker-container">
+                                <input type="color" id="category-color" value="#00d4ff">
+                                <span class="color-preview" id="category-color-preview">#00d4ff</span>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary">添加分类</button>
+                            <button type="button" id="cancel-edit-category-btn" class="btn" onclick="cancelCategoryEdit()" style="display: none;">取消编辑</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 应用管理 -->
+            <div class="settings-section glass">
+                <h2 class="section-title">
+                    <span>🔧</span>
+                    应用管理
+                </h2>
+                
+                <div id="service-list" class="service-list">
+                    <!-- 应用列表将在这里动态生成 -->
+                </div>
+
+                <!-- 添加应用表单 -->
+                <div class="add-form">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">添加应用</h3>
+                    <form id="add-service-form">
+                        <div class="form-group">
+                            <label>应用名称</label>
+                            <input type="text" id="service-name" placeholder="例如：Nginx管理" required>
+                        </div>
+                        <div class="form-group">
+                            <label>应用URL</label>
+                            <input type="url" id="service-url" placeholder="https://example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>应用描述</label>
+                            <input type="text" id="service-description" placeholder="Web服务器管理面板">
+                        </div>
+                        <div class="form-group">
+                            <label>分类</label>
+                            <select id="service-category">
+                                <option value="开发工具">开发工具</option>
+                                <option value="系统管理">系统管理</option>
+                                <option value="监控工具">监控工具</option>
+                                <option value="存储服务">存储服务</option>
+                                <option value="媒体服务">媒体服务</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>图标 (Emoji)</label>
+                            <input type="text" id="service-icon" placeholder="🌐" maxlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label>图标URL (可选)</label>
+                            <input type="url" id="service-icon-url" placeholder="https://example.com/icon.png">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary">添加应用</button>
+                            <button type="button" id="cancel-edit-btn" class="btn" onclick="cancelEdit()" style="display: none;">取消编辑</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 数据管理
+        let engines = [];
+        let services = [];
+        let categories = [];
+        let isAdmin = false;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            checkUserPermissions();
+            await loadData();
+            renderEngines();
+            renderCategories();
+            renderServices();
+            updateCategoryOptions();
+            
+            // 绑定表单事件
+            document.getElementById('add-engine-form').addEventListener('submit', addEngine);
+            document.getElementById('add-category-form').addEventListener('submit', addCategory);
+            document.getElementById('add-service-form').addEventListener('submit', addService);
+            
+            // 绑定颜色选择器事件
+            document.getElementById('category-color').addEventListener('input', function(e) {
+                document.getElementById('category-color-preview').textContent = e.target.value;
+            });
+        });
+
+        // 从服务器加载数据
+        async function loadData() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    
+                    // 从服务器配置加载数据
+                    engines = config.searchEngines || [
+                        { name: '百度', url: 'https://www.baidu.com/s?wd={query}', icon: '🔍', iconUrl: '' },
+                        { name: 'Bing', url: 'https://www.bing.com/search?q={query}', icon: '🔎', iconUrl: '' }
+                    ];
+
+                    categories = config.categories || [
+                        { name: '开发工具', icon: '🔧', color: '#00d4ff' },
+                        { name: '系统管理', icon: '⚙️', color: '#ff6b35' },
+                        { name: '监控工具', icon: '📊', color: '#00ff88' },
+                        { name: '存储服务', icon: '💾', color: '#9b59b6' },
+                        { name: '媒体服务', icon: '🎬', color: '#e74c3c' },
+                        { name: '其他', icon: '📦', color: '#95a5a6' }
+                    ];
+
+                    services = config.services || [];
+                    
+                    console.log('配置已从服务器加载');
+                } else {
+                    console.warn('无法从服务器加载配置，使用默认配置');
+                    // 使用默认配置
+                    engines = [
+                        { name: '百度', url: 'https://www.baidu.com/s?wd={query}', icon: '🔍', iconUrl: '' },
+                        { name: 'Bing', url: 'https://www.bing.com/search?q={query}', icon: '🔎', iconUrl: '' }
+                    ];
+                    categories = [
+                        { name: '开发工具', icon: '🔧', color: '#00d4ff' },
+                        { name: '系统管理', icon: '⚙️', color: '#ff6b35' },
+                        { name: '监控工具', icon: '📊', color: '#00ff88' },
+                        { name: '存储服务', icon: '💾', color: '#9b59b6' },
+                        { name: '媒体服务', icon: '🎬', color: '#e74c3c' },
+                        { name: '其他', icon: '📦', color: '#95a5a6' }
+                    ];
+                    services = [];
+                }
+            } catch (error) {
+                console.error('加载配置失败:', error);
+                showMessage('加载配置失败，使用默认配置', 'warning');
+                
+                // 网络错误时使用默认配置
+                engines = [
+                    { name: '百度', url: 'https://www.baidu.com/s?wd={query}', icon: '🔍', iconUrl: '' },
+                    { name: 'Bing', url: 'https://www.bing.com/search?q={query}', icon: '🔎', iconUrl: '' }
+                ];
+                categories = [
+                    { name: '开发工具', icon: '🔧', color: '#00d4ff' },
+                    { name: '系统管理', icon: '⚙️', color: '#ff6b35' },
+                    { name: '监控工具', icon: '📊', color: '#00ff88' },
+                    { name: '存储服务', icon: '💾', color: '#9b59b6' },
+                    { name: '媒体服务', icon: '🎬', color: '#e74c3c' },
+                    { name: '其他', icon: '📦', color: '#95a5a6' }
+                ];
+                services = [];
+            }
+        }
+
+        // 直接保存数据到服务器（移除本地存储）
+        async function saveAndSyncData() {
+            await syncConfigToServer();
+        }
+
+        // 同步配置到服务器
+        async function syncConfigToServer() {
+            try {
+                const config = {
+                    searchEngines: engines,
+                    categories: categories,
+                    services: services,
+                    lastUpdate: new Date().toISOString()
+                };
+
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '同步配置到服务器失败');
+                }
+
+                console.log('配置已同步到服务器');
+            } catch (error) {
+                console.error('同步配置到服务器失败:', error);
+                throw error;
+            }
+        }
+
+        // 渲染搜索引擎列表
+        function renderEngines() {
+            const container = document.getElementById('engine-list');
+            container.innerHTML = '';
+
+            engines.forEach((engine, index) => {
+                const item = document.createElement('div');
+                item.className = 'engine-item';
+                item.innerHTML = `
+                    <div class="engine-info">
+                        <div class="engine-icon">
+                            ${engine.iconUrl ? `<img src="${engine.iconUrl}" alt="${engine.name}">` : engine.icon}
+                        </div>
+                        <div class="item-details">
+                            <h3>${engine.name}</h3>
+                            <p>${engine.url}</p>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-button sort" onclick="moveEngine(${index}, 'up')" ${index === 0 ? 'disabled' : ''} title="上移">↑</button>
+                        <button class="action-button sort" onclick="moveEngine(${index}, 'down')" ${index === engines.length - 1 ? 'disabled' : ''} title="下移">↓</button>
+                        <button class="action-button delete" onclick="deleteEngine(${index})" title="删除">删除</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 渲染分类列表
+        function renderCategories() {
+            const container = document.getElementById('category-list');
+            container.innerHTML = '';
+
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🏷️</div>
+                        <p>暂无自定义分类，点击下方添加新分类</p>
+                    </div>
+                `;
+                return;
+            }
+
+            categories.forEach((category, index) => {
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.innerHTML = `
+                    <div class="category-info">
+                        <div class="category-icon">${category.icon}</div>
+                        <div class="item-details">
+                            <h3>${category.name}
+                                <span class="category-color-indicator" style="background-color: ${category.color || '#95a5a6'}"></span>
+                            </h3>
+                            <p>主题色: ${category.color || '#95a5a6'}</p>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        ${index >= 6 ? `
+                            <button class="action-button" onclick="editCategory(${index})">编辑</button>
+                            <button class="action-button delete" onclick="deleteCategory(${index})">删除</button>
+                        ` : `
+                            <button class="action-button" onclick="editCategory(${index})">编辑</button>
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">默认分类</span>
+                        `}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 渲染应用列表
+        function renderServices() {
+            const container = document.getElementById('service-list');
+            container.innerHTML = '';
+
+            if (services.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                        <p>暂无应用，点击下方添加新应用</p>
+                    </div>
+                `;
+                return;
+            }
+
+            services.forEach((service, index) => {
+                const item = document.createElement('div');
+                item.className = 'service-item';
+                item.innerHTML = `
+                    <div class="service-info">
+                        <div class="service-icon">
+                            ${service.iconUrl ? `<img src="${service.iconUrl}" alt="${service.name}">` : service.icon}
+                        </div>
+                        <div class="item-details">
+                            <h3>${service.name}</h3>
+                            <p>${service.url}</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted);">${service.description} | ${service.category}</p>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-button sort" onclick="moveService(${index}, 'up')" ${index === 0 ? 'disabled' : ''} title="上移">↑</button>
+                        <button class="action-button sort" onclick="moveService(${index}, 'down')" ${index === services.length - 1 ? 'disabled' : ''} title="下移">↓</button>
+                        <button class="action-button" onclick="editService(${index})">编辑</button>
+                        <button class="action-button delete" onclick="deleteService(${index})">删除</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 添加搜索引擎
+        async function addEngine(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('engine-name').value.trim();
+            const url = document.getElementById('engine-url').value.trim();
+            const icon = document.getElementById('engine-icon').value.trim() || '🔍';
+            const iconUrl = document.getElementById('engine-icon-url').value.trim();
+
+            if (!name || !url) {
+                showMessage('请填写引擎名称和搜索URL', 'error');
+                return;
+            }
+
+            if (!url.includes('{query}')) {
+                showMessage('搜索URL必须包含 {query} 占位符', 'error');
+                return;
+            }
+
+            const newEngine = { name, url, icon, iconUrl };
+            engines.push(newEngine);
+            
+            try {
+                await saveAndSyncData();
+                renderEngines();
+                
+                // 清空表单
+                document.getElementById('add-engine-form').reset();
+                showMessage('搜索引擎添加成功', 'success');
+            } catch (error) {
+                // 如果同步失败，回滚本地更改
+                engines.pop();
+                showMessage('添加搜索引擎失败: ' + error.message, 'error');
+            }
+        }
+
+        // 更新分类选项
+        function updateCategoryOptions() {
+            const select = document.getElementById('service-category');
+            select.innerHTML = '';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = `${category.icon} ${category.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        // 分类编辑状态
+        let editingCategoryIndex = -1;
+
+        // 添加分类
+        async function addCategory(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('category-name').value.trim();
+            const icon = document.getElementById('category-icon').value.trim() || '📦';
+            const color = document.getElementById('category-color').value;
+
+            if (!name) {
+                showMessage('请填写分类名称', 'error');
+                return;
+            }
+
+            // 检查分类是否已存在（编辑时排除自己）
+            if (categories.some((cat, index) => cat.name === name && index !== editingCategoryIndex)) {
+                showMessage('分类名称已存在', 'error');
+                return;
+            }
+
+            const categoryData = { name, icon, color };
+            const isEditing = editingCategoryIndex >= 0;
+            const originalCategory = isEditing ? categories[editingCategoryIndex] : null;
+
+            try {
+                if (isEditing) {
+                    // 更新现有分类
+                    categories[editingCategoryIndex] = categoryData;
+                    editingCategoryIndex = -1;
+                    document.querySelector('#add-category-form button[type="submit"]').textContent = '添加分类';
+                    document.getElementById('cancel-edit-category-btn').style.display = 'none';
+                } else {
+                    // 添加新分类
+                    categories.push(categoryData);
+                }
+                
+                await saveAndSyncData();
+                renderCategories();
+                updateCategoryOptions();
+                document.getElementById('add-category-form').reset();
+                // 重置颜色预览
+                document.getElementById('category-color-preview').textContent = '#00d4ff';
+                showMessage(isEditing ? '分类更新成功' : '分类添加成功', 'success');
+            } catch (error) {
+                // 回滚更改
+                if (isEditing) {
+                    categories[editingCategoryIndex] = originalCategory;
+                    editingCategoryIndex = 0; // 恢复编辑状态
+                } else {
+                    categories.pop();
+                }
+                showMessage((isEditing ? '更新' : '添加') + '分类失败: ' + error.message, 'error');
+            }
+        }
+
+        // 编辑分类
+        function editCategory(index) {
+            const category = categories[index];
+            
+            // 设置编辑状态
+            editingCategoryIndex = index;
+            
+            // 填充表单
+            document.getElementById('category-name').value = category.name;
+            document.getElementById('category-icon').value = category.icon;
+            document.getElementById('category-color').value = category.color || '#00d4ff';
+            document.getElementById('category-color-preview').textContent = category.color || '#00d4ff';
+            
+            // 更改按钮文本和显示取消按钮
+            document.querySelector('#add-category-form button[type="submit"]').textContent = '更新分类';
+            document.getElementById('cancel-edit-category-btn').style.display = 'inline-block';
+            
+            // 滚动到表单
+            document.querySelector('#add-category-form').scrollIntoView({ behavior: 'smooth' });
+            
+            showMessage('分类信息已加载到表单，修改后点击更新按钮', 'success');
+        }
+
+        // 取消编辑分类
+        function cancelCategoryEdit() {
+            editingCategoryIndex = -1;
+            document.querySelector('#add-category-form button[type="submit"]').textContent = '添加分类';
+            document.getElementById('cancel-edit-category-btn').style.display = 'none';
+            document.getElementById('add-category-form').reset();
+            document.getElementById('category-color-preview').textContent = '#00d4ff';
+            showMessage('已取消编辑', 'success');
+        }
+
+        // 删除分类
+        async function deleteCategory(index) {
+            const category = categories[index];
+            
+            // 检查是否有应用使用此分类
+            const usedByServices = services.some(service => service.category === category.name);
+            if (usedByServices) {
+                showMessage('无法删除：仍有应用使用此分类', 'error');
+                return;
+            }
+            
+            if (confirm(`确定要删除分类 "${category.name}" 吗？`)) {
+                const deletedCategory = categories[index];
+                categories.splice(index, 1);
+                
+                try {
+                    await saveAndSyncData();
+                    renderCategories();
+                    updateCategoryOptions();
+                    showMessage('分类删除成功', 'success');
+                } catch (error) {
+                    // 回滚更改
+                    categories.splice(index, 0, deletedCategory);
+                    showMessage('删除分类失败: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // 移动应用顺序
+        async function moveService(index, direction) {
+            const originalServices = [...services];
+            
+            if (direction === 'up' && index > 0) {
+                [services[index], services[index - 1]] = [services[index - 1], services[index]];
+            } else if (direction === 'down' && index < services.length - 1) {
+                [services[index], services[index + 1]] = [services[index + 1], services[index]];
+            } else {
+                return; // 无效移动
+            }
+            
+            try {
+                await saveAndSyncData();
+                renderServices();
+                showMessage('应用顺序调整成功', 'success');
+            } catch (error) {
+                // 回滚更改
+                services.splice(0, services.length, ...originalServices);
+                renderServices();
+                showMessage('调整应用顺序失败: ' + error.message, 'error');
+            }
+        }
+
+        // 移动搜索引擎顺序
+        async function moveEngine(index, direction) {
+            const originalEngines = [...engines];
+            
+            if (direction === 'up' && index > 0) {
+                [engines[index], engines[index - 1]] = [engines[index - 1], engines[index]];
+            } else if (direction === 'down' && index < engines.length - 1) {
+                [engines[index], engines[index + 1]] = [engines[index + 1], engines[index]];
+            } else {
+                return; // 无效移动
+            }
+            
+            try {
+                await saveAndSyncData();
+                renderEngines();
+                showMessage('搜索引擎顺序调整成功', 'success');
+                            } catch (error) {
+                    // 回滚更改
+                    engines.splice(0, engines.length, ...originalEngines);
+                    renderEngines();
+                    showMessage('调整搜索引擎顺序失败: ' + error.message, 'error');
+                }
+        }
+
+        // 删除搜索引擎
+        async function deleteEngine(index) {
+            if (engines.length <= 1) {
+                showMessage('至少需要保留1个搜索引擎', 'error');
+                return;
+            }
+
+            if (confirm(`确定要删除搜索引擎 "${engines[index].name}" 吗？\n\n注意：删除后搜索引擎的顺序可能会改变`)) {
+                const deletedEngine = engines[index];
+                engines.splice(index, 1);
+                
+                try {
+                    await saveAndSyncData();
+                    renderEngines();
+                    showMessage('搜索引擎删除成功', 'success');
+                } catch (error) {
+                    // 如果同步失败，回滚本地更改
+                    engines.splice(index, 0, deletedEngine);
+                    showMessage('删除搜索引擎失败: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // 编辑状态
+        let editingServiceIndex = -1;
+
+        // 添加/更新应用
+        async function addService(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('service-name').value.trim();
+            const url = document.getElementById('service-url').value.trim();
+            const description = document.getElementById('service-description').value.trim();
+            const category = document.getElementById('service-category').value;
+            const icon = document.getElementById('service-icon').value.trim() || '🌐';
+            const iconUrl = document.getElementById('service-icon-url').value.trim();
+
+            if (!name || !url) {
+                showMessage('请填写应用名称和URL', 'error');
+                return;
+            }
+
+            const serviceData = {
+                id: editingServiceIndex >= 0 ? services[editingServiceIndex].id : Date.now().toString(),
+                name,
+                url,
+                description: description || '暂无描述',
+                category,
+                icon,
+                iconUrl,
+                status: editingServiceIndex >= 0 ? services[editingServiceIndex].status : 'online',
+                color: editingServiceIndex >= 0 ? services[editingServiceIndex].color : '#00d4ff'
+            };
+
+            const isEditing = editingServiceIndex >= 0;
+            const originalService = isEditing ? services[editingServiceIndex] : null;
+
+            try {
+                if (isEditing) {
+                    // 更新现有应用
+                    services[editingServiceIndex] = serviceData;
+                    editingServiceIndex = -1;
+                    document.querySelector('#add-service-form button[type="submit"]').textContent = '添加应用';
+                    document.getElementById('cancel-edit-btn').style.display = 'none';
+                } else {
+                    // 添加新应用
+                    services.push(serviceData);
+                }
+
+                await saveAndSyncData();
+                renderServices();
+                
+                // 清空表单
+                document.getElementById('add-service-form').reset();
+                showMessage(isEditing ? '应用更新成功' : '应用添加成功', 'success');
+            } catch (error) {
+                // 回滚更改
+                if (isEditing) {
+                    services[editingServiceIndex] = originalService;
+                    editingServiceIndex = 0; // 恢复编辑状态
+                } else {
+                    services.pop();
+                }
+                showMessage((isEditing ? '更新' : '添加') + '应用失败: ' + error.message, 'error');
+            }
+        }
+
+        // 编辑应用
+        function editService(index) {
+            const service = services[index];
+            
+            // 设置编辑状态
+            editingServiceIndex = index;
+            
+            // 填充表单
+            document.getElementById('service-name').value = service.name;
+            document.getElementById('service-url').value = service.url;
+            document.getElementById('service-description').value = service.description;
+            document.getElementById('service-category').value = service.category;
+            document.getElementById('service-icon').value = service.icon;
+            document.getElementById('service-icon-url').value = service.iconUrl || '';
+            
+            // 更改按钮文本和显示取消按钮
+            document.querySelector('#add-service-form button[type="submit"]').textContent = '更新应用';
+            document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+            
+            // 滚动到表单
+            document.querySelector('#add-service-form').scrollIntoView({ behavior: 'smooth' });
+            
+            showMessage('应用信息已加载到表单，修改后点击更新按钮', 'success');
+        }
+
+        // 取消编辑
+        function cancelEdit() {
+            editingServiceIndex = -1;
+            document.querySelector('#add-service-form button[type="submit"]').textContent = '添加应用';
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+            document.getElementById('add-service-form').reset();
+            showMessage('已取消编辑', 'success');
+        }
+
+        // 删除应用
+        async function deleteService(index) {
+            if (confirm(`确定要删除应用 "${services[index].name}" 吗？`)) {
+                const deletedService = services[index];
+                services.splice(index, 1);
+                
+                try {
+                    await saveAndSyncData();
+                    renderServices();
+                    showMessage('应用删除成功', 'success');
+                } catch (error) {
+                    // 回滚更改
+                    services.splice(index, 0, deletedService);
+                    showMessage('删除应用失败: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // 导出配置
+        function exportConfig() {
+            const config = {
+                searchEngines: engines,
+                categories: categories,
+                services: services,
+                exportTime: new Date().toISOString(),
+                version: '1.0.0'
+            };
+
+            const dataStr = JSON.stringify(config, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `navpage-config-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('配置导出成功', 'success');
+        }
+
+        // 导入配置
+        function importConfig(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    
+                    if (config.searchEngines && Array.isArray(config.searchEngines)) {
+                        engines = config.searchEngines;
+                    }
+                    
+                    if (config.categories && Array.isArray(config.categories)) {
+                        categories = config.categories;
+                    }
+                    
+                    if (config.services && Array.isArray(config.services)) {
+                        services = config.services;
+                    }
+                    
+                    // 保存并同步到服务器
+                    await saveAndSyncData();
+                    
+                    renderEngines();
+                    renderCategories();
+                    renderServices();
+                    updateCategoryOptions();
+                    showMessage('配置导入成功', 'success');
+                    
+                } catch (error) {
+                    console.error('导入配置错误:', error);
+                    showMessage('配置文件格式错误', 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+            input.value = ''; // 清空文件输入
+        }
+
+        // 重置配置
+        async function resetConfig() {
+            if (confirm('确定要重置所有配置吗？这将删除所有自定义设置！')) {
+                try {
+                    // 调用服务器重置API
+                    const response = await fetch('/api/config/reset', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                                if (response.ok) {
+                // 服务器重置成功，重新加载数据和界面
+                await loadData();
+                renderEngines();
+                renderCategories();
+                renderServices();
+                updateCategoryOptions();
+                showMessage('配置重置成功', 'success');
+            } else {
+                        const errorData = await response.json();
+                        showMessage(errorData.error || '重置配置失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('重置配置错误:', error);
+                    showMessage('网络错误，重置配置失败', 'error');
+                }
+            }
+        }
+
+        // 清除搜索历史
+        async function clearSearchHistory() {
+            if (confirm('确定要清除所有搜索历史吗？此操作无法撤销！')) {
+                try {
+                    // 尝试通过API清除
+                    const response = await fetch('/api/config/search-history', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify([]), // 发送空数组
+                    });
+
+                    if (response.ok) {
+                        showMessage('搜索历史清除成功', 'success');
+                    } else {
+                        throw new Error('API请求失败');
+                    }
+                } catch (error) {
+                    console.warn('通过API清除搜索历史失败，尝试清除本地存储:', error);
+                    // 如果API失败，清除localStorage
+                    localStorage.removeItem('searchHistory');
+                    showMessage('搜索历史清除成功（本地）', 'success');
+                }
+            }
+        }
+
+        // 检查用户权限
+        async function checkUserPermissions() {
+            try {
+                const response = await fetch('/api/auth/verify');
+                if (response.ok) {
+                    const data = await response.json();
+                    isAdmin = data.isAdmin;
+                    
+                    // 如果是管理员，显示密钥管理按钮
+                    if (isAdmin) {
+                        document.getElementById('admin-keys-button').style.display = 'inline-flex';
+                    }
+                }
+            } catch (error) {
+                console.error('检查用户权限失败:', error);
+            }
+        }
+
+        // 打开密钥管理页面
+        function openKeyManagement() {
+            window.location.href = '/admin/keys';
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 
