@@ -1,0 +1,36 @@
+{
+  "name": "navpage",
+  "version": "1.0.0",
+  "description": "Modern server application navigation panel with system monitoring",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5833",
+    "start": "node server/index.js",
+    "start:dev": "concurrently \"node server/index.js\" \"vite preview --port 5833\""
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.6.0",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.4",
+    "ssh2": "^1.15.0",
+    "systeminformation": "^5.21.7"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.1.1",
+    "vite": "^5.0.0",
+    "typescript": "^5.2.2",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.1"
+  },
+  "type": "module"
+} 

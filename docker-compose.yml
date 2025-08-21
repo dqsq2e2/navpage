@@ -1,0 +1,37 @@
+services:
+  navpage:
+    build: .
+    container_name: navpage-app
+    restart: unless-stopped
+    ports:
+      - "5833:5834"  # 主应用端口 (服务器同时处理前端和API)
+    environment:
+      - NODE_ENV=production
+      - PORT=5834
+    volumes:
+      - navpage-data:/app/server/data
+      - navpage-logs:/app/logs
+      # 系统监控需要的挂载点
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    privileged: true  # 获取系统信息需要特权
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5834/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - navpage-network
+
+volumes:
+  navpage-data:
+    driver: local
+  navpage-logs:
+    driver: local
+
+networks:
+  navpage-network:
+    driver: bridge 
