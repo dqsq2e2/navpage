@@ -665,11 +665,15 @@
                 if (key.isCurrent) badges.push('<span class="key-badge badge-current">当前用户</span>');
                 if (!key.isAdmin && !key.isCurrent) badges.push('<span class="key-badge badge-user">用户</span>');
 
+                // 确保key.id存在且有效
+                const keyId = key.id || key.keyHash || 'unknown';
+                const canDelete = !key.isCurrent && keyId && keyId !== 'unknown';
+
                 return `
                     <div class="key-item">
                         <div class="key-info">
                             <div class="key-header">
-                                <div class="key-id">${key.id}</div>
+                                <div class="key-id">${keyId}</div>
                                 ${key.keyName ? `<div class="key-name">${key.keyName}</div>` : ''}
                             </div>
                             <div class="key-meta">
@@ -678,8 +682,8 @@
                             </div>
                         </div>
                         <div class="key-actions">
-                            ${!key.isCurrent ? `
-                                <button class="btn btn-danger btn-small" onclick="showDeleteModal('${key.id}')">
+                            ${canDelete ? `
+                                <button class="btn btn-danger btn-small" onclick="showDeleteModal('${keyId}')">
                                     删除
                                 </button>
                             ` : ''}
@@ -717,6 +721,12 @@
 
         // 显示删除确认模态框
         window.showDeleteModal = function(keyId) {
+            // 验证keyId是否有效
+            if (!keyId || keyId === 'null' || keyId === 'undefined' || keyId === 'unknown') {
+                showError('无效的密钥ID');
+                return;
+            }
+            
             currentDeleteKeyId = keyId;
             deleteModal.classList.add('active');
         }
@@ -729,6 +739,12 @@
 
         // 删除密钥
         async function deleteKey(keyId) {
+            // 验证keyId是否有效
+            if (!keyId || keyId === 'null' || keyId === 'undefined' || keyId === 'unknown') {
+                showError('无效的密钥ID');
+                return;
+            }
+
             showLoading();
             
             try {
@@ -755,10 +771,13 @@
         // 事件监听
         cancelDelete.addEventListener('click', hideDeleteModal);
         
-        confirmDelete.addEventListener('click', () => {
+        confirmDelete.addEventListener('click', async () => {
             if (currentDeleteKeyId) {
-                hideDeleteModal();
-                deleteKey(currentDeleteKeyId);
+                const keyIdToDelete = currentDeleteKeyId; // 保存当前要删除的密钥ID
+                hideDeleteModal(); // 隐藏模态框
+                await deleteKey(keyIdToDelete); // 删除密钥
+            } else {
+                showError('无法获取要删除的密钥ID');
             }
         });
 
