@@ -88,7 +88,7 @@ npm run build
 ```yaml
 services:
   navpage:
-    image: crpi-36bectlts4f4dtww.cn-shenzhen.personal.cr.aliyuncs.com/navpage/navpage:latest
+    image: crpi-36bectlts4f4dtww.cn-shenzhen.personal.cr.aliyuncs.com/dqsq2e2/navpage:latest
     container_name: navpage-app
     restart: unless-stopped
     ports:
@@ -146,7 +146,7 @@ docker run -d \
   -v /:/rootfs:ro \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   --privileged \
-  crpi-36bectlts4f4dtww.cn-shenzhen.personal.cr.aliyuncs.com/navpage/navpage:latest
+  crpi-36bectlts4f4dtww.cn-shenzhen.personal.cr.aliyuncs.com/dqsq2e2/navpage:latest
 ```
 
 ### 方法二：本地构建
@@ -183,7 +183,7 @@ HOST_MOUNT_POINT=/rootfs  # 监控用主机文件系统挂载点
 ```
 
 ### 镜像信息
-- **镜像地址**：`crpi-36bectlts4f4dtww.cn-shenzhen.personal.cr.aliyuncs.com/navpage/navpage:latest`
+- **镜像地址**：`crpi-36bectlts4f4dtww.cn-shenzhen.personal.cr.aliyuncs.com/dqsq2e2/navpage:latest`
 - **镜像大小**：约 150MB（压缩后）
 - **架构支持**：linux/amd64
 - **更新频率**：跟随主分支更新
