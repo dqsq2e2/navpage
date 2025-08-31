@@ -134,10 +134,15 @@ export class KeyManager {
       throw new Error('权限不足')
     }
     
+    // 验证keyId参数
+    if (!keyId || keyId === 'null' || keyId === 'undefined') {
+      throw new Error('无效的密钥ID')
+    }
+    
     // 查找匹配的密钥
     let keyDataToDelete = null
     for (const [keyHash, keyData] of this.keys.entries()) {
-      if (keyData.keyHash.substring(0, 16) === keyId) {
+      if (keyData.keyHash && keyData.keyHash.substring(0, 16) === keyId) {
         keyDataToDelete = keyData
         break
       }
@@ -175,13 +180,24 @@ export class KeyManager {
       throw new Error('权限不足')
     }
     
-    return Array.from(this.keys.values()).map(keyData => ({
-      id: keyData.keyHash.substring(0, 16), // 只显示部分哈希作为ID
-      keyName: keyData.keyName, // 密钥名称
-      createdAt: keyData.createdAt,
-      isAdmin: keyData.isAdmin,
-      isCurrent: keyData.keyHash === this.generateKeyHash(currentKey)
-    }))
+    const keys = Array.from(this.keys.values()).map(keyData => {
+      // 确保keyHash存在且有效
+      if (!keyData.keyHash) {
+        return null;
+      }
+      
+      const keyId = keyData.keyHash.substring(0, 16);
+      
+      return {
+        id: keyId, // 只显示部分哈希作为ID
+        keyName: keyData.keyName, // 密钥名称
+        createdAt: keyData.createdAt,
+        isAdmin: keyData.isAdmin,
+        isCurrent: keyData.keyHash === this.generateKeyHash(currentKey)
+      };
+    }).filter(key => key !== null); // 过滤掉无效的密钥
+    
+    return keys;
   }
 
   // 为密钥初始化配置文件
