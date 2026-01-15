@@ -88,7 +88,7 @@ npm run build
 ```yaml
 services:
   navpage:
-    image: crpi-36bectlts4f4dtww.cn-shenzhen.personal.cr.aliyuncs.com/dqsq2e2/navpage:latest
+    image: dqsq2e2/navpage:latest
     container_name: navpage-app
     restart: unless-stopped
     ports:
