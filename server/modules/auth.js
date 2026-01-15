@@ -118,7 +118,10 @@ export async function handleCreateKey(req, res) {
     }
     
     console.error('Create key error:', error)
-    res.status(500).json({ error: '创建密钥失败' })
+    res.status(500).json({ 
+      error: '创建密钥失败',
+      details: error.message // 暂时在所有环境中返回错误详情以辅助调试
+    })
   }
 }
 

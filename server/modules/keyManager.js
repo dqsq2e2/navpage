@@ -75,10 +75,18 @@ export class KeyManager {
     }
     
     this.keys.set(keyHash, keyData)
-    await this.saveKeys()
     
-    // 为新密钥创建独立的配置文件
-    await this.initializeKeyConfig(keyHash)
+    try {
+      // 为新密钥创建独立的配置文件
+      await this.initializeKeyConfig(keyHash)
+      
+      // 保存密钥数据
+      await this.saveKeys()
+    } catch (error) {
+      // 如果出错，回滚内存中的密钥并抛出错误
+      this.keys.delete(keyHash)
+      throw error
+    }
     
     return keyData
   }
