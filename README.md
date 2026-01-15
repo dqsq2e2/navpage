@@ -100,8 +100,8 @@ services:
       - NODE_ENV=production
       - PORT=5834
     volumes:
-      - navpage-data:/app/server/data
-      - navpage-logs:/app/logs
+      - /path/to/data:/app/server/data  # ⚠️ 重要：请确保该目录具有读写权限，否则可能导致密钥创建失败
+      - /path/to/logs:/app/logs
       # 系统监控需要的挂载点（必须）
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -151,8 +151,8 @@ docker run -d \
   -p 5833:5834 \
   -e NODE_ENV=production \
   -e PORT=5834 \
-  -v navpage-data:/app/server/data \
-  -v navpage-logs:/app/logs \
+  -v /path/to/data:/app/server/data \
+  -v /path/to/logs:/app/logs \
   -v /proc:/host/proc:ro \
   -v /sys:/host/sys:ro \
   -v /:/rootfs:ro \
