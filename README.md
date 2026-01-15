@@ -377,7 +377,7 @@ POST /api/config/engines     # 更新搜索引擎
 感谢以下项目和资源：
 
 - [Homepage](https://github.com/gethomepage/homepage) - 设计灵感来源
-- [阿里云开发者社区](https://developer.aliyun.com/) - 系统监控实现参考
+- [阿里云开发者社区](https://developer.aliyun.com/article/1629334) - 系统监控实现参考
 - [React](https://reactjs.org/) - 前端框架
 - [Vite](https://vitejs.dev/) - 构建工具
 - [Express.js](https://expressjs.com/) - 后端框架
