@@ -68,7 +68,7 @@ export async function handleLogin(req, res) {
     // 设置cookie
     res.cookie('userToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production' && req.secure, // 仅在 HTTPS 连接下启用 secure
       maxAge: 24 * 60 * 60 * 1000, // 24小时
       sameSite: 'lax',
       path: '/'
